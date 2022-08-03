@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>wsjf_grid_modified</title>
+
+    <script type="text/javascript" src="/apps/2.1/sdk.js"></script>
+
+    <script type="text/javascript">
+        Rally.onReady(function () {
+                var Ext=window.Ext4||window.Ext;Ext.define("CustomApp",{extend:"Rally.app.App",componentCls:"app",launch:function(){this.STeamGoalField=this.getSetting("STeamGoalField"),this.CostSavingsField=this.getSetting("CostSavingsField"),this.DefectReductionField=this.getSetting("DefectReductionField"),this.BusinessExpansionField=this.getSetting("BusinessExpansionField"),this.CurrentWorkaroundField=this.getSetting("CurrentWorkaroundField"),this.LegalCField=this.getSetting("LegalCField"),this.EmployeeSelfSufficiencyField=this.getSetting("EmployeeSelfSufficiencyField"),this.ESTechField=this.getSetting("ESTechField"),this.PriorityScoreField=this.getSetting("PriorityScoreField"),this._grid=null,this._piCombobox=this.add({xtype:"rallyportfolioitemtypecombobox",padding:5,listeners:{select:this._onPICombobox,scope:this}})},_onPICombobox:function(){var e=this._piCombobox.getRecord().get("TypePath");null!==this._grid&&this._grid.destroy(),Ext.create("Rally.data.wsapi.TreeStoreBuilder").build({models:[e],listeners:{load:function(e){var t=e.getRootNode().childNodes;this._calculateScore(t,!0)},update:function(e,t,i,l){this._calculateScore([t],!1)},scope:this},enableHierarchy:!0}).then({success:this._onStoreBuilt,scope:this})},_onStoreBuilt:function(e,t){var i=this._piCombobox.getRecord().get("TypePath"),l=this.getContext();this._grid=this.add({xtype:"rallygridboard",context:l,modelNames:[i],toggleState:"grid",stateful:!1,plugins:[{ptype:"rallygridboardinlinefiltercontrol",filterChildren:!1,inlineFilterButtonConfig:{modelNames:[i],stateful:!0,stateId:l.getScopedStateId("custom-filter-example"),inlineFilterPanelConfig:{quickFilterPanelConfig:{defaultFields:["ArtifactSearch"],addQuickFilterConfig:{whiteListFields:["Milestones","Tags"]}},advancedFilterPanelConfig:{advancedFilterRowsConfig:{propertyFieldConfig:{whiteListFields:["Milestones","Tags"]}}}}}},{ptype:"rallygridboardfieldpicker",headerPosition:"left",modelNames:[i],stateful:!0,stateId:l.getScopedStateId("columns-example")},{ptype:"rallygridboardactionsmenu",menuItems:[{text:"Export...",handler:function(){window.location=Rally.ui.gridboard.Export.buildCsvExportUrl(this.down("rallygridboard").getGridOrBoard())},scope:this}],buttonConfig:{iconCls:"icon-export"}}],gridConfig:{store:e,columnCfgs:["Name",this.STeamGoalField,this.CostSavingsField,this.DefectReductionField,this.BusinessExpansionField,this.CurrentWorkaroundField,this.LegalCField,this.EmployeeSelfSufficiencyField,this.ESTechField,{text:"Priority Score",dataIndex:this.PriorityScoreField,editor:null}]},height:this.getHeight()})},_calculateScore:function(e,t){var i=this;Ext.Array.each(e,function(e){var l={Yes:20,No:0},o={"> $500,000":4,"$100,000 - $500,000":3,"$60,000 - $100,000":2,"$20,000 - $60,000":1,"< $20,000":0},a={"> 5,000 Defects":4,"3,000 - 5,000 Defects":3,"2,000 - 3,000 Defects":2,"< 2,000 Defects":1,"No Impact":0},n={"> 10,000":4,"5,000 - 10,000":3,"1,000 - 5,000":2,"< 1,000":1,"No Impact":0},d={No:4,Yes:1},s={Yes:4,No:0},r={"Direct: > 5,000 Employees":4,"Direct: < 5,000 Employees":3,"Indirect: > 5,000 Employees":2,"Indirect: < 5,000 Employees":1,"No Impact":0},c={Yes:4,No:1},u=0,g=e.data[i.STeamGoalField];""!==g&&(u=g in l?l[g]:1e4);var h=0,f=e.data[i.CostSavingsField];""!==f&&(h=f in o?o[f]:1e4);var p=0,S=e.data[i.DefectReductionField];""!==S&&(p=S in a?a[S]:1e4);var y=0,F=e.data[i.BusinessExpansionField];""!==F&&(y=F in n?n[F]:1e4);var m=0,x=e.data[i.CurrentWorkaroundField];""!==x&&(m=x in d?d[x]:1e4);var C=0,b=e.data[i.LegalCField];""!==b&&(C=b in s?s[b]:1e4);var E=0,v=e.data[i.EmployeeSelfSufficiencyField];""!==v&&(E=v in r?r[v]:1e4);var _=0,T=e.data[i.ESTechField];""!==T&&(_=T in c?c[T]:1e4);var P=u+h+p+y+m+C+E+_;console.log("Score = "+P),console.log("Loading = "+t),e.set(i.PriorityScoreField,P),console.log("Feature Set : "+e.data.FormattedID),t&&(e.save(),console.log("Feature Saved : "+e.data.FormattedID))})},getSettingsFields:function(){return[{name:"STeamGoalField",xtype:"rallytextfield",label:"S-Team Goal",labelWidth:200},{name:"CostSavingsField",xtype:"rallytextfield",label:"Cost Savings",labelWidth:200},{name:"DefectReductionField",xtype:"rallytextfield",label:"Defect Reduction",labelWidth:200},{name:"BusinessExpansionField",xtype:"rallytextfield",label:"Business Expansion",labelWidth:200},{name:"CurrentWorkaroundField",xtype:"rallytextfield",label:"Current Work-Around",labelWidth:200},{name:"LegalCField",xtype:"rallytextfield",label:"Legal / Payroll etc.",labelWidth:200},{name:"EmployeeSelfSufficiencyField",xtype:"rallytextfield",label:"Employee Self Sufficiency",labelWidth:200},{name:"ESTechField",xtype:"rallytextfield",label:"ES Tech Investment",labelWidth:200},{name:"PriorityScoreField",xtype:"rallytextfield",label:"Priority Score Result",labelWidth:200}]},config:{defaultSettings:{STeamGoalField:"c_STeamGoal",CostSavingsField:"c_CostSavings",DefectReductionField:"c_DefectReduction",BusinessExpansionField:"c_BusinessExpansion",CurrentWorkaroundField:"c_CurrentWorkaround",LegalCField:"c_LegalC",EmployeeSelfSufficiencyField:"c_EmployeeSelfSufficiency",ESTechField:"c_ESTech",PriorityScoreField:"c_PriorityScore"}}});
+
+            Rally.launchApp('CustomApp', {
+                name:"wsjf_grid_modified",
+                parentRepos:"",
+                version:"1.0.2"
+            });
+
+        });
+    </script>
+
+
+    <style type="text/css">
+        
+    </style>
+</head>
+<body>
+</body>
+</html>
